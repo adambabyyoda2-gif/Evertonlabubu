@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Everton Hub | Official</title>
+    <title>Everton Hub | Perfect Version</title>
     <style>
         :root {
             --efc-blue: #003399;
@@ -26,12 +26,12 @@
         }
         .side-menu a { padding: 15px 25px; text-decoration: none; font-size: 18px; color: white; display: block; border-bottom: 1px solid rgba(255,255,255,0.1); cursor: pointer; }
 
-        /* UI Containers */
+        /* Sections */
         .page-section { display: none; padding: 20px; text-align: center; min-height: 80vh; }
         .active { display: block; }
         .data-card { background: white; color: #333; border-radius: 12px; padding: 15px; max-width: 800px; margin: auto; box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
 
-        /* Pitch & Formation */
+        /* Pitch */
         .pitch { 
             background: var(--pitch-green); width: 95%; max-width: 450px; height: 420px; 
             margin: 20px auto; border-radius: 10px; position: relative; border: 2px solid white;
@@ -43,18 +43,20 @@
             justify-content: center; font-size: 8px; font-weight: bold; transform: translate(-50%, -50%); cursor: pointer;
         }
 
-        /* League Table */
+        /* League & List Tables */
         table { width: 100%; border-collapse: collapse; font-size: 13px; }
         th { background: var(--efc-blue); color: white; padding: 10px; }
         td { padding: 10px; border-bottom: 1px solid #eee; text-align: center; }
         .efc-row { background: #eef4ff !important; font-weight: bold; color: var(--efc-blue); }
-        .editable:hover { background: #ffffd0; cursor: cell; }
+        .editable-cell:hover { background: #ffffd0; cursor: pointer; }
 
-        /* Admin Controls */
+        /* Admin HUD */
         .admin-toolbar { background: #222; border: 2px dashed red; padding: 15px; margin: 15px auto; max-width: 600px; border-radius: 10px; display: none; color: white; }
         .slime-btn { background: var(--slime-red); color: white; border: none; padding: 12px 25px; border-radius: 50px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 0px #8b0000; margin: 5px; }
 
         #resultGui { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; color: black; padding: 30px; border-radius: 15px; border: 5px solid var(--efc-blue); z-index: 5000; display: none; text-align: center; }
+        
+        .scorer-item { display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid #eee; }
     </style>
 </head>
 <body>
@@ -62,7 +64,7 @@
     <div class="header">
         <button class="menu-icon" onclick="toggleNav(true)">☰</button>
         <span id="pageTitle">EVERTON HUB</span>
-        <div id="admBadge" style="display:none; color:red; font-weight:bold; font-size:12px;">ADMIN ACTIVE</div>
+        <div id="admBadge" style="display:none; color:red; font-weight:bold; font-size:12px; border:1px solid red; padding:2px 5px;">ADMIN</div>
     </div>
 
     <div id="mySidenav" class="side-menu">
@@ -77,19 +79,18 @@
 
     <div id="home" class="page-section active">
         <div class="pitch">
-            <div class="player" style="bottom: 5%; left: 50%;" ondblclick="editThis(this)">GK</div>
-            <div class="player" style="bottom: 25%; left: 15%;" ondblclick="editThis(this)">LB</div>
-            <div class="player" style="bottom: 20%; left: 38%;" ondblclick="editThis(this)">CB</div>
-            <div class="player" style="bottom: 20%; left: 62%;" ondblclick="editThis(this)">CB</div>
-            <div class="player" style="bottom: 25%; left: 85%;" ondblclick="editThis(this)">RB</div>
-            <div class="player" style="bottom: 50%; left: 25%;" ondblclick="editThis(this)">CM</div>
-            <div class="player" style="bottom: 45%; left: 50%;" ondblclick="editThis(this)">CDM</div>
-            <div class="player" style="bottom: 50%; left: 75%;" ondblclick="editThis(this)">CM</div>
-            <div class="player" style="top: 15%; left: 20%;" ondblclick="editThis(this)">LW</div>
-            <div class="player" style="top: 10%; left: 50%;" ondblclick="editThis(this)">ST</div>
-            <div class="player" style="top: 15%; left: 80%;" ondblclick="editThis(this)">RW</div>
+            <div class="player" style="bottom: 5%; left: 50%;" ondblclick="adminEdit(this)">GK</div>
+            <div class="player" style="bottom: 25%; left: 15%;" ondblclick="adminEdit(this)">LB</div>
+            <div class="player" style="bottom: 20%; left: 38%;" ondblclick="adminEdit(this)">CB</div>
+            <div class="player" style="bottom: 20%; left: 62%;" ondblclick="adminEdit(this)">CB</div>
+            <div class="player" style="bottom: 25%; left: 85%;" ondblclick="adminEdit(this)">RB</div>
+            <div class="player" style="bottom: 50%; left: 25%;" ondblclick="adminEdit(this)">CM</div>
+            <div class="player" style="bottom: 45%; left: 50%;" ondblclick="adminEdit(this)">CDM</div>
+            <div class="player" style="bottom: 50%; left: 75%;" ondblclick="adminEdit(this)">CM</div>
+            <div class="player" style="top: 15%; left: 20%;" ondblclick="adminEdit(this)">LW</div>
+            <div class="player" style="top: 10%; left: 50%;" ondblclick="adminEdit(this)">ST</div>
+            <div class="player" style="top: 15%; left: 80%;" ondblclick="adminEdit(this)">RW</div>
         </div>
-        
     </div>
 
     <div id="leagues" class="page-section">
@@ -99,33 +100,35 @@
                 <tbody id="leagueBody"></tbody>
             </table>
         </div>
-        
     </div>
 
     <div id="logs" class="page-section">
         <div class="data-card">
             <h3>Match History</h3>
-            <p>No matches recorded yet.</p>
+            <p id="emptyLogs">No matches recorded yet.</p>
             <table id="logTable" style="display:none;">
-                <thead><tr><th>Fixture</th><th>Result</th><th>Status</th></tr></thead>
+                <thead><tr><th>Fixture</th><th>Result</th></tr></thead>
                 <tbody id="logBody"></tbody>
             </table>
         </div>
     </div>
 
     <div id="scorer" class="page-section">
+        <div id="adminScorerTools" class="admin-toolbar">
+            <button class="slime-btn" onclick="addScorer()">+ Add New Scorer</button>
+            <p style="font-size:11px;">Double-click name or goals to edit.</p>
+        </div>
         <div class="data-card">
             <h3>Top Scorers</h3>
-            <ul id="scorerList" style="text-align:left; list-style:none; padding:0;">
-                <li ondblclick="editThis(this)">1. Calvert-Lewin - 0 Goals</li>
-            </ul>
+            <div id="scorerList">
+                </div>
         </div>
     </div>
 
     <div id="hub" class="page-section">
         <div id="adminControls" class="admin-toolbar">
-            <h4>Admin Control Panel</h4>
-            Category: <input type="text" id="admCat" placeholder="e.g. Premier League">
+            <h4>Admin Command Center</h4>
+            Category: <input type="text" id="admCat" placeholder="League Name">
             <br><br>
             Score: <input type="number" id="admH" style="width:40px"> : <input type="number" id="admA" style="width:40px">
             <br>
@@ -138,11 +141,11 @@
             <h3>Predict Score</h3>
             <div id="predInputArea">
                 <input type="number" id="uH" style="width:50px"> : <input type="number" id="uA" style="width:50px">
-                <br><br><button class="slime-btn" onclick="userSubmit()">Submit Prediction</button>
+                <br><br><button class="slime-btn" onclick="userSubmit()">Submit</button>
             </div>
             <div id="predLockedArea" style="display:none;">
                 <h4 id="myGuess"></h4>
-                <p style="color:red; font-weight:bold;">SCORE SUBMITTED</p>
+                <p style="color:red; font-weight:bold;">LOCKED</p>
             </div>
         </div>
     </div>
@@ -166,12 +169,20 @@
 
     <script>
         let isAdmin = false;
+        
+        // Initial League Data
         let teams = [
             "Arsenal", "Aston Villa", "Bournemouth", "Brentford", "Brighton", 
             "Burnley", "Chelsea", "Crystal Palace", "Everton", "Fulham", 
             "Leeds United", "Liverpool", "Man City", "Man United", "Newcastle", 
             "Nottm Forest", "Sunderland", "Tottenham", "West Ham", "Wolves"
         ].map(name => ({name, p: 0, gd: 0, gs: 0, pts: 0}));
+
+        // Initial Golden Boot Data
+        let scorers = [
+            { name: "Calvert-Lewin", goals: 0 },
+            { name: "McNeil", goals: 0 }
+        ];
 
         function toggleNav(o) { document.getElementById("mySidenav").style.width = o ? "260px" : "0"; }
         
@@ -183,43 +194,76 @@
         }
 
         function renderLeague() {
-            // Sort: Points > GD > GS
             teams.sort((a,b) => b.pts - a.pts || b.gd - a.gd || b.gs - a.gs);
             const body = document.getElementById('leagueBody');
             body.innerHTML = "";
             teams.forEach((t, i) => {
                 const row = document.createElement('tr');
                 if(t.name === "Everton") row.className = "efc-row";
-                row.innerHTML = `<td>${i+1}</td><td style="text-align:left" ondblclick="editTeam(${i},'name')">${t.name}</td>
-                <td ondblclick="editTeam(${i},'p')">${t.p}</td><td ondblclick="editTeam(${i},'gd')">${t.gd}</td>
-                <td ondblclick="editTeam(${i},'gs')">${t.gs}</td><td ondblclick="editTeam(${i},'pts')">${t.pts}</td>`;
+                row.innerHTML = `<td>${i+1}</td><td style="text-align:left" class="editable-cell" ondblclick="editTeam(${i},'name')">${t.name}</td>
+                <td class="editable-cell" ondblclick="editTeam(${i},'p')">${t.p}</td><td class="editable-cell" ondblclick="editTeam(${i},'gd')">${t.gd}</td>
+                <td class="editable-cell" ondblclick="editTeam(${i},'gs')">${t.gs}</td><td class="editable-cell" ondblclick="editTeam(${i},'pts')">${t.pts}</td>`;
                 body.appendChild(row);
             });
         }
 
+        function renderScorers() {
+            scorers.sort((a,b) => b.goals - a.goals);
+            const list = document.getElementById('scorerList');
+            list.innerHTML = "";
+            scorers.forEach((s, i) => {
+                const item = document.createElement('div');
+                item.className = "scorer-item";
+                item.innerHTML = `
+                    <span ondblclick="editScorerName(${i})" style="cursor:pointer"><b>${i+1}. ${s.name}</b></span>
+                    <span ondblclick="editScorerGoals(${i})" style="cursor:pointer; color:var(--efc-blue); font-weight:bold;">${s.goals} Goals</span>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        // Admin Editing Logic
+        function adminLogin() {
+            if(prompt("Passcode:") === "efc26") {
+                isAdmin = true;
+                document.querySelectorAll('.admin-toolbar').forEach(el => el.style.display = 'block');
+                document.getElementById('admBadge').style.display = 'block';
+                unlockPremium();
+                renderLeague();
+                renderScorers();
+            }
+        }
+
+        function adminEdit(el) {
+            if(!isAdmin) return;
+            let val = prompt("New Text:", el.innerText);
+            if(val) el.innerText = val;
+        }
+
         function editTeam(idx, field) {
             if(!isAdmin) return;
-            let val = prompt("Update " + field, teams[idx][field]);
+            let val = prompt("Update " + field + ":", teams[idx][field]);
             if(val !== null) {
                 teams[idx][field] = isNaN(val) ? val : parseInt(val);
                 renderLeague();
             }
         }
 
-        function editThis(el) {
+        function editScorerName(idx) {
             if(!isAdmin) return;
-            let val = prompt("Edit text:", el.innerText);
-            if(val) el.innerText = val;
+            let val = prompt("Player Name:", scorers[idx].name);
+            if(val) { scorers[idx].name = val; renderScorers(); }
         }
 
-        function adminLogin() {
-            if(prompt("Passcode:") === "efc26") {
-                isAdmin = true;
-                document.getElementById('adminControls').style.display = 'block';
-                document.getElementById('admBadge').style.display = 'block';
-                unlockPremium();
-                renderLeague();
-            }
+        function editScorerGoals(idx) {
+            if(!isAdmin) return;
+            let val = prompt("Goals Scored:", scorers[idx].goals);
+            if(val !== null) { scorers[idx].goals = parseInt(val); renderScorers(); }
+        }
+
+        function addScorer() {
+            let n = prompt("Enter Player Name:");
+            if(n) { scorers.push({name: n, goals: 0}); renderScorers(); }
         }
 
         function lockOfficial() {
@@ -228,7 +272,7 @@
             localStorage.setItem('officialScore', s);
             localStorage.setItem('officialCat', cat);
             document.getElementById('activeCategory').innerText = cat.toUpperCase();
-            alert("Score Locked!");
+            alert("Score & Category Saved!");
         }
 
         function spawnResultGui() {
@@ -236,12 +280,8 @@
             const mine = localStorage.getItem('userPred');
             document.getElementById('resultGui').style.display = 'block';
             document.getElementById('guiFinalScore').innerText = "RESULT: " + official;
-            if(mine === official) {
-                document.getElementById('guiStatusText').innerText = "CORRECT! PREMIUM UNLOCKED";
-                unlockPremium();
-            } else {
-                document.getElementById('guiStatusText').innerText = "WRONG SCORE. TRY AGAIN NEXT TIME!";
-            }
+            document.getElementById('guiStatusText').innerText = (mine === official) ? "CORRECT! PREMIUM UNLOCKED" : "WRONG SCORE. TRY AGAIN NEXT TIME!";
+            if(mine === official) unlockPremium();
         }
 
         function userSubmit() {
@@ -261,10 +301,11 @@
             if(msg) {
                 box.innerHTML += `<br><b>Supporter:</b> ${msg}`;
                 document.getElementById('chatIn').value = "";
+                box.scrollTop = box.scrollHeight;
             }
         }
 
-        // Check save states
+        // Startup
         if(localStorage.getItem('userPred')) {
             document.getElementById('predInputArea').style.display = 'none';
             document.getElementById('predLockedArea').style.display = 'block';
@@ -273,6 +314,7 @@
         if(localStorage.getItem('officialCat')) document.getElementById('activeCategory').innerText = localStorage.getItem('officialCat').toUpperCase();
         if(localStorage.getItem('isPrem')) unlockPremium();
         renderLeague();
+        renderScorers();
     </script>
 </body>
 </html>
