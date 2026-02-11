@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Everton Hub | Premium</title>
+    <title>Everton Hub | Admin Control</title>
     <style>
         :root {
             --efc-blue: #003399;
@@ -13,50 +13,58 @@
             --gold: #ffd700;
         }
 
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; background: #050a14; color: white; overflow-x: hidden; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #050a14; color: white; overflow-x: hidden; }
 
         /* Navigation */
-        .header { background: var(--efc-blue); padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--gold); position: sticky; top: 0; z-index: 100; }
+        .header { background: var(--efc-blue); padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--gold); position: sticky; top: 0; z-index: 1000; }
         .menu-icon { font-size: 30px; cursor: pointer; background: none; border: none; color: white; }
         
         .side-menu {
-            height: 100%; width: 0; position: fixed; z-index: 1000; top: 0; left: 0;
+            height: 100%; width: 0; position: fixed; z-index: 2000; top: 0; left: 0;
             background-color: var(--efc-dark); overflow-x: hidden; transition: 0.4s;
             padding-top: 60px; box-shadow: 5px 0 15px rgba(0,0,0,0.5);
         }
         .side-menu a { padding: 15px 25px; text-decoration: none; font-size: 18px; color: white; display: block; border-bottom: 1px solid rgba(255,255,255,0.1); cursor: pointer; }
-        .side-menu a:hover { background: var(--efc-blue); }
 
         /* Sections */
         .page-section { display: none; padding: 20px; text-align: center; }
         .active { display: block; }
 
-        /* Tables & Lists */
-        .data-card { background: white; color: #333; border-radius: 12px; padding: 15px; max-width: 600px; margin: 10px auto; overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        /* Admin Controls */
+        .admin-toolbar { background: #222; border: 2px solid red; padding: 15px; margin: 10px; border-radius: 10px; display: none; }
+        .editable:hover { outline: 2px dashed var(--gold); cursor: pointer; }
+
+        /* Pitch */
+        .pitch { 
+            background: var(--pitch-green); width: 95%; max-width: 450px; height: 400px; 
+            margin: 20px auto; border-radius: 10px; position: relative; border: 2px solid white;
+            background-image: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px); background-size: 20px 20px;
+        }
+        .player { 
+            width: 45px; height: 45px; background: var(--efc-blue); border: 2px solid var(--gold); 
+            border-radius: 50%; position: absolute; display: flex; align-items: center; 
+            justify-content: center; font-size: 8px; font-weight: bold; transform: translate(-50%, -50%);
+            transition: transform 0.2s;
+        }
+
+        /* League Table */
+        .data-card { background: white; color: #333; border-radius: 12px; padding: 10px; max-width: 600px; margin: auto; }
+        table { width: 100%; border-collapse: collapse; }
         th { background: var(--efc-blue); color: white; padding: 10px; }
-        td { padding: 8px; border-bottom: 1px solid #eee; }
+        td { padding: 8px; border-bottom: 1px solid #eee; text-align: center; }
         .efc-row { background: #eef4ff !important; font-weight: bold; }
 
-        /* Premium Chat */
-        #chatBox { height: 200px; background: #000; color: #0f0; padding: 10px; overflow-y: scroll; text-align: left; font-family: monospace; border-radius: 5px; margin-bottom: 10px; }
-        .chat-input { width: 70%; padding: 10px; border-radius: 5px; border: none; }
-
-        /* Slime Buttons */
+        /* Buttons */
         .slime-btn {
             background: var(--slime-red); color: white; border: none; padding: 12px 25px;
             border-radius: 50px; font-weight: bold; cursor: pointer;
             box-shadow: 0 4px 0px #8b0000; margin: 5px;
         }
 
-        .pitch { 
-            background: var(--pitch-green); width: 100%; max-left: 400px; height: 380px; 
-            margin: 10px auto; border-radius: 10px; position: relative; border: 2px solid white;
-        }
-        .player { 
-            width: 35px; height: 35px; background: var(--efc-blue); border: 2px solid var(--gold); 
-            border-radius: 50%; position: absolute; display: flex; align-items: center; 
-            justify-content: center; font-size: 7px; font-weight: bold; transform: translate(-50%, -50%);
+        #resultGui { 
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: white; color: black; padding: 40px; border-radius: 20px;
+            box-shadow: 0 0 100px rgba(0,0,0,0.8); z-index: 3000; border: 5px solid var(--efc-blue);
         }
     </style>
 </head>
@@ -65,105 +73,90 @@
     <div class="header">
         <button class="menu-icon" onclick="toggleNav(true)">=</button>
         <span id="pageTitle">EVERTON HUB</span>
-        <div id="adminIndicator" style="color:red; font-size:10px; display:none;">ADMIN MODE</div>
+        <div id="admStatus" style="color:var(--gold); font-size:12px; display:none;">ADMIN ACTIVE</div>
     </div>
 
     <div id="mySidenav" class="side-menu">
         <a onclick="toggleNav(false)">× Close</a>
-        <a onclick="showPage('home', 'EVERTON HUB')">Home</a>
-        <a onclick="showPage('leagues', 'LEAGUES')">Leagues</a>
-        <a onclick="showPage('logs', 'MATCH LOGS')">Match Logs</a>
+        <a onclick="showPage('home', 'EVERTON HUB')">Home (Pitch)</a>
+        <a onclick="showPage('leagues', 'LEAGUE TABLE')">Leagues</a>
         <a onclick="showPage('scorer', 'GOLDEN BOOT')">Golden Boot</a>
-        <a onclick="showPage('hub', 'SCORE PREDICTION')">Match Hub</a>
-        <a id="premiumLink" style="display:none; background:var(--gold); color:black; font-weight:bold;" onclick="showPage('premium', 'PREMIUM ZONE')">★ PREMIUM CHAT</a>
+        <a onclick="showPage('hub', 'MATCH HUB')">Prediction Hub</a>
+        <a id="premiumLink" style="display:none; background:var(--gold); color:black;" onclick="showPage('premium', 'PREMIUM')">★ PREMIUM</a>
     </div>
 
     <div id="home" class="page-section active">
-        <div class="pitch">
-            <div class="player" style="bottom: 5%; left: 50%;" onclick="adminRename(this)">GK</div>
-            <div class="player" style="bottom: 20%; left: 20%;" onclick="adminRename(this)">LB</div>
-            <div class="player" style="bottom: 15%; left: 40%;" onclick="adminRename(this)">CB</div>
-            <div class="player" style="bottom: 15%; left: 60%;" onclick="adminRename(this)">CB</div>
-            <div class="player" style="bottom: 20%; left: 80%;" onclick="adminRename(this)">RB</div>
-            <div class="player" style="bottom: 45%; left: 30%;" onclick="adminRename(this)">CM</div>
-            <div class="player" style="bottom: 40%; left: 50%;" onclick="adminRename(this)">CDM</div>
-            <div class="player" style="bottom: 45%; left: 70%;" onclick="adminRename(this)">CM</div>
-            <div class="player" style="top: 15%; left: 20%;" onclick="adminRename(this)">LW</div>
-            <div class="player" style="top: 10%; left: 50%;" onclick="adminRename(this)">ST</div>
-            <div class="player" style="top: 15%; left: 80%;" onclick="adminRename(this)">RW</div>
+        <div id="adminPitchTools" class="admin-toolbar">
+            <p>Admin: Double-click a player circle to rename them!</p>
         </div>
-        <div id="adminPanel" style="display:none; border:1px dashed red; padding:10px; margin-top:10px;">
-            <p>Admin: Set Official Score</p>
-            <input type="number" id="admH" style="width:30px"> - <input type="number" id="admA" style="width:30px">
-            <button onclick="setOfficialScore()">Lock Result</button>
-        </div>
+        <div class="pitch" id="pitchLayout">
+            </div>
     </div>
 
     <div id="leagues" class="page-section">
+        <div id="adminLeagueTools" class="admin-toolbar">
+            <p>Admin: Click any number to edit points/stats.</p>
+        </div>
         <div class="data-card">
-            <table>
+            <table id="leagueTable">
                 <thead><tr><th>#</th><th>Team</th><th>Pts</th></tr></thead>
-                <tbody id="leagueTable"></tbody>
+                <tbody id="leagueBody"></tbody>
             </table>
         </div>
     </div>
 
-    <div id="logs" class="page-section">
-        <div class="data-card">
-            <h3>Recent Results</h3>
-            <div id="logList" style="text-align:left;">
-                <p>EFC 2-0 Liverpool (W)</p>
-                <p>EFC 1-1 Chelsea (D)</p>
-            </div>
-        </div>
-    </div>
-
     <div id="scorer" class="page-section">
-        <div class="data-card">
-            <h3>Top Scorers</h3>
-            <ol style="text-align:left;">
-                <li>Calvert-Lewin - 12 Goals</li>
-                <li>McNeil - 5 Goals</li>
-                <li>Doucoure - 4 Goals</li>
-            </ol>
-        </div>
-    </div>
-
-    <div id="premium" class="page-section">
-        <div class="data-card" style="background:#1a1a1a; color:white;">
-            <h3 style="color:var(--gold);">Supporter Chat</h3>
-            <div id="chatBox">Welcome to the inner circle...</div>
-            <input type="text" id="chatMsg" class="chat-input" placeholder="Type a message...">
-            <button class="slime-btn" onclick="sendChat()">Send</button>
+        <div id="adminScorerTools" class="admin-toolbar">
+            <p>Double-click a name or goal count to update.</p>
         </div>
         <div class="data-card">
-            <h3>Full Highlights</h3>
-            <div style="background:#000; height:150px; display:flex; align-items:center; justify-content:center; color:white;">
-                [▶ VIDEO PLAYER UNLOCKED]
-            </div>
+            <ul id="scorerList" style="text-align:left; list-style:none; padding:0;">
+                <li class="editable" ondblclick="editThis(this)">1. Calvert-Lewin - 12 Goals</li>
+                <li class="editable" ondblclick="editThis(this)">2. McNeil - 5 Goals</li>
+            </ul>
         </div>
     </div>
 
     <div id="hub" class="page-section">
+        <div class="admin-toolbar" id="adminHubTools" style="display:block;">
+            <h4>Admin Match Control</h4>
+            <input type="number" id="admH" placeholder="EFC" style="width:50px"> : 
+            <input type="number" id="admA" placeholder="OPP" style="width:50px">
+            <br>
+            <button class="slime-btn" onclick="showPage('home','EVERTON HUB')">1. Change Team</button>
+            <button class="slime-btn" onclick="lockResult()">2. Lock & Set Score</button>
+            <button class="slime-btn" onclick="triggerResultGui()">3. Spawn Result GUI</button>
+        </div>
+        
         <div class="data-card">
-            <h3>Predict the Score</h3>
+            <h3>Predict the Game</h3>
             <div id="predForm">
-                <input type="number" id="uH" placeholder="0" style="width:40px"> : <input type="number" id="uA" placeholder="0" style="width:40px">
-                <br><br><button class="slime-btn" onclick="savePred()">Submit</button>
+                <input type="number" id="uH" style="width:40px"> : <input type="number" id="uA" style="width:40px">
+                <br><br><button class="slime-btn" onclick="saveUserPred()">Submit Prediction</button>
             </div>
             <div id="predLocked" style="display:none;">
-                <h4 id="mySaved"></h4>
-                <p style="color:red;">LOCKED</p>
-                <button class="slime-btn" onclick="claimPremium()">Check for Win</button>
+                <p>Your Guess: <span id="myGuessVal"></span></p>
+                <p style="color:red; font-weight:bold;">LOCKED</p>
             </div>
         </div>
     </div>
 
-    <div id="secretAdmin" onclick="doAdmin()" style="position:fixed; bottom:0; right:0; width:30px; height:30px; opacity:0; z-index:9999;"></div>
+    <div id="resultGui" style="display:none;">
+        <h1 id="guiScoreText">FINAL: 0 - 0</h1>
+        <h2 id="guiStatusText">Checking...</h2>
+        <button class="slime-btn" onclick="this.parentElement.style.display='none'">Close</button>
+    </div>
+
+    <div id="secretAdmin" onclick="adminLogin()" style="position:fixed; bottom:0; right:0; width:30px; height:30px; opacity:0; z-index:9999;"></div>
 
     <script>
-        const teams = ["Arsenal", "Man City", "Aston Villa", "Man United", "Chelsea", "Liverpool", "Brentford", "Fulham", "Everton", "Newcastle", "Sunderland", "Bournemouth", "Brighton", "Tottenham", "Crystal Palace", "Leeds United", "Nottm Forest", "West Ham", "Burnley", "Wolves"];
         let isAdmin = false;
+        const formation = [
+            {t:85, l:50, n:'ST'}, {t:75, l:20, n:'LW'}, {t:75, l:80, n:'RW'},
+            {t:50, l:30, n:'CM'}, {t:55, l:50, n:'CDM'}, {t:50, l:70, n:'CM'},
+            {t:25, l:15, n:'LB'}, {t:20, l:40, n:'CB'}, {t:20, l:60, n:'CB'}, {t:25, l:85, n:'RB'},
+            {t:5, l:50, n:'GK'}
+        ];
 
         function toggleNav(s) { document.getElementById("mySidenav").style.width = s ? "260px" : "0"; }
         function showPage(id, t) {
@@ -173,73 +166,76 @@
             toggleNav(false);
         }
 
-        // Build League
-        const lb = document.getElementById('leagueTable');
-        teams.sort().forEach((t, i) => {
-            let r = `<tr><td>${i+1}</td><td>${t}</td><td>0</td></tr>`;
-            if(t === "Everton") r = `<tr class="efc-row"><td>${i+1}</td><td>${t}</td><td>0</td></tr>`;
-            lb.innerHTML += r;
+        // Initialize Pitch
+        const pitch = document.getElementById('pitchLayout');
+        formation.forEach(p => {
+            const div = document.createElement('div');
+            div.className = "player";
+            div.style.bottom = p.t + "%";
+            div.style.left = p.l + "%";
+            div.innerText = p.n;
+            div.ondblclick = function() { if(isAdmin) editThis(this); };
+            pitch.appendChild(div);
         });
 
-        // Prediction Logic
-        if(localStorage.getItem('efc_pred')) {
-            document.getElementById('predForm').style.display = 'none';
-            document.getElementById('predLocked').style.display = 'block';
-            document.getElementById('mySaved').innerText = "Your Guess: " + localStorage.getItem('efc_pred');
+        // Initialize League
+        const lb = document.getElementById('leagueBody');
+        const teams = ["Arsenal", "Aston Villa", "Bournemouth", "Brentford", "Brighton", "Burnley", "Chelsea", "Crystal Palace", "Everton", "Fulham", "Leeds United", "Liverpool", "Man City", "Man United", "Newcastle", "Nottm Forest", "Sunderland", "Tottenham", "West Ham", "Wolves"];
+        teams.forEach((t, i) => {
+            const row = document.createElement('tr');
+            if(t === "Everton") row.className = "efc-row";
+            row.innerHTML = `<td>${i+1}</td><td class="editable" ondblclick="editThis(this)">${t}</td><td class="editable" ondblclick="editThis(this)">0</td>`;
+            lb.appendChild(row);
+        });
+
+        function editThis(el) {
+            if(!isAdmin) return;
+            const newVal = prompt("Enter new value:", el.innerText);
+            if(newVal !== null) el.innerText = newVal;
         }
 
-        function savePred() {
-            let val = document.getElementById('uH').value + "-" + document.getElementById('uA').value;
-            localStorage.setItem('efc_pred', val);
+        function adminLogin() {
+            if(prompt("Pass:") === "efc26") {
+                isAdmin = true;
+                document.querySelectorAll('.admin-toolbar').forEach(t => t.style.display = 'block');
+                document.getElementById('admStatus').style.display = 'block';
+                document.getElementById('premiumLink').style.display = 'block';
+                alert("Admin Mode: Double-click any element to edit!");
+            }
+        }
+
+        // Match Logic
+        function lockResult() {
+            const score = document.getElementById('admH').value + "-" + document.getElementById('admA').value;
+            localStorage.setItem('officialScore', score);
+            alert("Score Locked: " + score);
+        }
+
+        function triggerResultGui() {
+            const score = localStorage.getItem('officialScore') || "0-0";
+            const user = localStorage.getItem('userGuess');
+            document.getElementById('resultGui').style.display = 'block';
+            document.getElementById('guiScoreText').innerText = "RESULT: " + score;
+            
+            if(user === score) {
+                document.getElementById('guiStatusText').innerText = "CORRECT! PREMIUM UNLOCKED!";
+                document.getElementById('premiumLink').style.display = 'block';
+            } else {
+                document.getElementById('guiStatusText').innerText = "WRONG SCORE. TRY AGAIN!";
+            }
+        }
+
+        function saveUserPred() {
+            const val = document.getElementById('uH').value + "-" + document.getElementById('uA').value;
+            localStorage.setItem('userGuess', val);
             location.reload();
         }
 
-        function claimPremium() {
-            if(localStorage.getItem('efc_pred') === localStorage.getItem('official')) {
-                alert("CORRECT! Premium Unlocked.");
-                unlock();
-            } else {
-                alert("Score was " + localStorage.getItem('official') + ". Try next match!");
-            }
+        if(localStorage.getItem('userGuess')) {
+            document.getElementById('predForm').style.display = 'none';
+            document.getElementById('predLocked').style.display = 'block';
+            document.getElementById('myGuessVal').innerText = localStorage.getItem('userGuess');
         }
-
-        // Admin Logic
-        function doAdmin() {
-            if(prompt("Pass:") === "efc26") {
-                isAdmin = true;
-                document.getElementById('adminPanel').style.display = 'block';
-                document.getElementById('adminIndicator').style.display = 'block';
-                unlock();
-            }
-        }
-
-        function unlock() {
-            document.getElementById('premiumLink').style.display = 'block';
-            localStorage.setItem('isPrem', 'true');
-        }
-
-        function setOfficialScore() {
-            let s = document.getElementById('admH').value + "-" + document.getElementById('admA').value;
-            localStorage.setItem('official', s);
-            alert("Official score set to " + s);
-        }
-
-        function adminRename(el) {
-            if(isAdmin) {
-                let n = prompt("Name:");
-                if(n) el.innerText = n;
-            }
-        }
-
-        function sendChat() {
-            let m = document.getElementById('chatMsg').value;
-            if(m) {
-                document.getElementById('chatBox').innerHTML += `<br><b>Supporter:</b> ${m}`;
-                document.getElementById('chatMsg').value = "";
-            }
-        }
-
-        if(localStorage.getItem('isPrem')) unlock();
     </script>
 </body>
 </html>
